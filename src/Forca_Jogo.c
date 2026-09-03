@@ -53,7 +53,7 @@ void caracteresCorretos(char *tentativasCorretas, char tentativaAtual){
     tentativasCorretas[i + 1] = '\0';
 }
 
-// Imprimir
+// Impressão da palavra em tempo real, imprimindo somente os valores encontrados e omitindo os valores não inseridos pelo usário.
 void imprimirPalavra(char *palavra, char *tentativasCorretas){
 
     for(int i = 0; palavra[i] != '\0'; i++){
@@ -75,30 +75,13 @@ void imprimirPalavra(char *palavra, char *tentativasCorretas){
     }
 }
 
-// Função responsável por imprimir o status atual do jogo
-void exibirStatusJogo(char *palavra, char *tentativasCorretas, char *tentativas, char tentativaAtual,  int limiteErros){
-
-    printf("\n-----------------------------\n");
-    // Exibe a palavra em tempo real de acordo com acertos
-    printf("Palavra atual: ");
-    imprimirPalavra(palavra, tentativasCorretas);
-
-    // Exibe os caracteres errados já digitados
-    printf("\nCaracter Inseridos: %s\n", tentativas);
-
-   // Exibe os caracteres corretos já digitados excluindo os errados
-    printf("Caracteres Corretos: %s\n", tentativasCorretas);
-    printf("-----------------------------\n\n");
-
-    // Validar possível erro na inserção do caracter e incremeto do limite de erros
-    if(!caracterCorreto(palavra, tentativaAtual))
-        limiteErros++;
-    printf("Limite de Erros 10\nErros atuais %d\n", (limiteErros));
-}
-
-// Função para inserção de caracteres válidos que não se repetem
-void obterCaracterValido(char *palavra, char tentativaAtual, char qtdeTentativas, char *tentativas, char *tentativasCorretas){
-    //
+/*
+Inserção de caracteres válidos que não se repetem validados pela função caracterRepetido(...)
+e principalmente pela alteração do valor booleano da variável auxiliar -tentativaValida- que ao
+ser alterada termina o loop que controla a inserção de uma tentativa inédita inserida pelo usuário
+*/
+void obterCaracterValido(char *palavra, char *tentativasCorretas, char *tentativas, char tentativaAtual, char limiteErros, char qtdeTentativas){
+    // Variável auxiliar vda validar tentativa válida ou não
     int tentativaValida = 0;
 
     // Loop até o usuário digitar uma letra inédita
@@ -120,9 +103,39 @@ void obterCaracterValido(char *palavra, char tentativaAtual, char qtdeTentativas
             tentativaValida = 1; // Encerra o loop de validação
         }
 
-    }
+        // Validar possível erro na inserção do caracter e incremeto do limite de erros
+        if(!caracterCorreto(palavra, tentativaAtual))
+            limiteErros++;
+        printf("\n--------------- Erros ---------------\n");
+        printf("Limite de Erros 10\nErros atuais %d\n", limiteErros);
+        printf("-------------------------------------\n");
 
+    }
 }
+
+/*
+    Função responsável por imprimir o status atual do jogo mostrando a palavra em tempo real,
+    ocultando os caracteres não descobertos e mostrando assim somente os caracteres corretos, em sequência
+    é impresso dois vetores, o primeiro contento todos caracteres inseridos e o segundo contento somente
+    os caracteres inseridos corretamente.
+*/
+// Função responsável por imprimir o status atual do jogo
+void exibirStatusJogo(char *palavra, char *tentativasCorretas, char *tentativas, char tentativaAtual){
+
+    printf("\n--------------- Jogo da Forca ---------------\n");
+    // Exibe a palavra em tempo real de acordo com acertos
+    printf("Palavra atual: ");
+    imprimirPalavra(palavra, tentativasCorretas);
+
+    // Exibe os caracteres errados já digitados
+    printf("\nCaracter Inseridos: %s\n", tentativas);
+
+   // Exibe os caracteres corretos já digitados excluindo os errados
+    printf("Caracteres Corretos: %s\n", tentativasCorretas);
+    printf("---------------------------------------------\n\n");
+}
+
+
 
 int main() {
     char palavra[30]; // Vetor para armazenar palavra a ser descoberta
@@ -130,8 +143,8 @@ int main() {
     char tentativasCorretas[30] = {0}; // Vetor para guardar as tentivas corretas
     char tentativaAtual;
 
-    int limiteErros = 0; // Variável para contagem de Erros
-    int qtdeTentativas = 0; // Variável responsável pela inserção dos caracteres no local correto
+    int limiteErros = 0; // Variável auxiliar para contagem de Erros
+    int qtdeTentativas = 0; // Variável auxiliar responsável pela inserção dos caracteres.
 
     // Função para inserir respetiva palavra no vetor destinado a esta palavra
     sprintf(palavra, "PreSTAdOR");
@@ -140,17 +153,16 @@ int main() {
     stringParaMinuscula(palavra);
 
     do {
+        // Chamada da função para inserção correta dos caracteres no jogo.
+        obterCaracterValido(palavra, tentativasCorretas, tentativas, tentativaAtual, limiteErros, qtdeTentativas);
 
+        // Chamada da função para impressão do jogo em tempo real.
+        exibirStatusJogo(palavra, tentativasCorretas, tentativas, tentativaAtual);
 
-        obterCaracterValido(palavra, tentativaAtual, qtdeTentativas, tentativas, tentativasCorretas);
-
-        exibirStatusJogo(palavra, tentativasCorretas, tentativas, tentativaAtual, limiteErros);
-
-        // Incremento da variável no contagem de erros
 
 
         qtdeTentativas++; // Incremento de variável auxiliar responsável pela inserção do valores
-    } while (limiteErros < 10);
+    } while (limiteErros < 3);
 
     return 0;
 }
