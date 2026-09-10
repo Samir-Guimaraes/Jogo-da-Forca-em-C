@@ -80,7 +80,7 @@ Inserção de caracteres válidos que não se repetem validados pela função caracter
 e principalmente pela alteração do valor booleano da variável auxiliar -tentativaValida- que ao
 ser alterada termina o loop que controla a inserção de uma tentativa inédita inserida pelo usuário
 */
-void obterCaracterValido(char *palavra, char *tentativasCorretas, char *tentativas, char tentativaAtual, char limiteErros, char qtdeTentativas){
+void obterCaracterValido(char *palavra, char *tentativasCorretas, char *tentativas, char tentativaAtual, char qtdeTentativas){
     // Variável auxiliar vda validar tentativa válida ou não
     int tentativaValida = 0;
 
@@ -103,14 +103,8 @@ void obterCaracterValido(char *palavra, char *tentativasCorretas, char *tentativ
             tentativaValida = 1; // Encerra o loop de validação
         }
 
-        // Validar possível erro na inserção do caracter e incremeto do limite de erros
-        if(!caracterCorreto(palavra, tentativaAtual))
-            limiteErros++;
-        printf("\n--------------- Erros ---------------\n");
-        printf("Limite de Erros 10\nErros atuais %d\n", limiteErros);
-        printf("-------------------------------------\n");
-
     }
+
 }
 
 /*
@@ -120,7 +114,7 @@ void obterCaracterValido(char *palavra, char *tentativasCorretas, char *tentativ
     os caracteres inseridos corretamente.
 */
 // Função responsável por imprimir o status atual do jogo
-void exibirStatusJogo(char *palavra, char *tentativasCorretas, char *tentativas, char tentativaAtual){
+void exibirStatusJogo(char *palavra, char *tentativasCorretas, char *tentativas, char tentativaAtual, int *limiteErros){
 
     printf("\n--------------- Jogo da Forca ---------------\n");
     // Exibe a palavra em tempo real de acordo com acertos
@@ -133,6 +127,13 @@ void exibirStatusJogo(char *palavra, char *tentativasCorretas, char *tentativas,
    // Exibe os caracteres corretos já digitados excluindo os errados
     printf("Caracteres Corretos: %s\n", tentativasCorretas);
     printf("---------------------------------------------\n\n");
+
+    // Validar possível erro na inserção do caracter e incremeto do limite de erros
+    if(!caracterCorreto(palavra, tentativaAtual))
+        (*limiteErros)++;
+    printf("\n--------------- Erros ---------------\n");
+    printf("Limite de Erros 10\nErros atuais %d\n", *limiteErros);
+    printf("-------------------------------------\n");
 }
 
 
@@ -145,24 +146,36 @@ int main() {
 
     int limiteErros = 0; // Variável auxiliar para contagem de Erros
     int qtdeTentativas = 0; // Variável auxiliar responsável pela inserção dos caracteres.
+    int novoJogo, vitoria;
 
+
+    inicioJogo:
     // Função para inserir respetiva palavra no vetor destinado a esta palavra
     sprintf(palavra, "PreSTAdOR");
-
     // Normaliza a palavra secreta para minúsculas logo no início
     stringParaMinuscula(palavra);
 
     do {
         // Chamada da função para inserção correta dos caracteres no jogo.
-        obterCaracterValido(palavra, tentativasCorretas, tentativas, tentativaAtual, limiteErros, qtdeTentativas);
+        obterCaracterValido(palavra, tentativasCorretas, tentativas, tentativaAtual, qtdeTentativas);
 
         // Chamada da função para impressão do jogo em tempo real.
-        exibirStatusJogo(palavra, tentativasCorretas, tentativas, tentativaAtual);
+        exibirStatusJogo(palavra, tentativasCorretas, tentativas, tentativaAtual, &limiteErros);
 
 
 
         qtdeTentativas++; // Incremento de variável auxiliar responsável pela inserção do valores
     } while (limiteErros < 3);
+
+    //ler_int("Fim do Jogo! /nDigite 1 para reinicia ou 0 para terminar o programa.", novoJogo);
+    printf("Fim do Jogo! \nDigite 1 para reinicia ou 0 para terminar o programa.\n");
+    scanf("%d", &novoJogo);
+    printf("\nNova Rodada - Jogo da Forca!\n");
+
+    if(novoJogo == 1)
+        goto inicioJogo;
+    //else
+      //  exit;
 
     return 0;
 }
