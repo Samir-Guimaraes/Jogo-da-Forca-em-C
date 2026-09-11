@@ -58,16 +58,15 @@ void imprimirPalavra(char *palavra, char *tentativasCorretas){
 
     for(int i = 0; palavra[i] != '\0'; i++){
         int encontrada =  0; // Variável utilizada para controle de caracteres corretos
-        // Contantemente a variável reinicializada com zero para controle de iteração
+        // Constantemente a variável é reinicializada com zero para controle de iteração
 
         for(int j = 0; tentativasCorretas[j] != '\0'; j++){
             if(tentativasCorretas[j] == palavra[i]){
                 encontrada = 1;
                 break; // Não precisa percorrer o vetor em busca de outro caracter correto
             }
-
         }
-
+        // Caso o caractere já tenha sido digitado o mesmo é impresso
         if(encontrada)
             printf("%c ", palavra[i]);
         else
@@ -75,31 +74,52 @@ void imprimirPalavra(char *palavra, char *tentativasCorretas){
     }
 }
 
+// Função para verificar se a palavra foi encontrada a cada nova tentativa
+bool palavraDescoberta(char *palavra, char *tentativasCorretas){
+
+    for(int i = 0; palavra[i] != '\0'; i++){
+        int encontrado = 0; // Variável utilizada para controle de caracteres encontrados
+        // Constamente a variável é reinicializada com zero para permitir o controle da palavra letra por letra
+
+        for(int j = 0; tentativasCorretas[j] != '\0'; j++){
+            if(tentativasCorretas[j] == palavra[i]){ // É analisada letra por letra da palavra se a mesma está presente nas tentativas corretas
+                encontrado = 1;
+            }
+        }
+        // Caso a letra da palavra analisada não seja encontrada é considerado que a palavra por inteira não foi encontrada
+        if(!encontrado)
+            return false;
+    }
+
+    return true;
+
+}
+
 /*
-Inserção de caracteres válidos que não se repetem validados pela função caracterRepetido(...)
-e principalmente pela alteração do valor booleano da variável auxiliar -tentativaValida- que ao
-ser alterada termina o loop que controla a inserção de uma tentativa inédita inserida pelo usuário
+    Inserção de caracteres válidos que não se repetem validados pela função caracterRepetido(...)
+    e principalmente pela alteração do valor booleano da variável auxiliar -tentativaValida- que ao
+    ser alterada termina o loop que controla a inserção de uma tentativa inédita inserida pelo usuário
 */
-void obterCaracterValido(char *palavra, char *tentativasCorretas, char *tentativas, char tentativaAtual, char qtdeTentativas){
-    // Variável auxiliar vda validar tentativa válida ou não
+void obterCaracterValido(char *palavra, char *tentativasCorretas, char *tentativas, char *tentativaAtual, int qtdeTentativas){
+    // Variável auxiliar pra validar tentativa válida ou não
     int tentativaValida = 0;
 
     // Loop até o usuário digitar uma letra inédita
     while (!tentativaValida) {
         printf("Insira um caractere: ");
-        scanf(" %c", &tentativaAtual);
+        scanf(" %c", tentativaAtual);
 
         // Padroniza a tentativa do usuário para minúscula
-        tentativaAtual = letraMinuscula(tentativaAtual);
+        *tentativaAtual = letraMinuscula(*tentativaAtual);
 
-        if (caracterRepetido(tentativas, tentativaAtual)) {
+        if (caracterRepetido(tentativas, *tentativaAtual)) {
             printf("\nCaractere repetido! Tente novamente.\n");
         }
         else{
             // Salva a nova letra no vetor de tentativas
-            tentativas[qtdeTentativas] = tentativaAtual;
-            if(caracterCorreto(palavra, tentativaAtual))
-                caracteresCorretos(tentativasCorretas, tentativaAtual);
+            tentativas[qtdeTentativas] = *tentativaAtual;
+            if(caracterCorreto(palavra, *tentativaAtual))
+                caracteresCorretos(tentativasCorretas, *tentativaAtual);
             tentativaValida = 1; // Encerra o loop de validação
         }
 
@@ -113,7 +133,6 @@ void obterCaracterValido(char *palavra, char *tentativasCorretas, char *tentativ
     é impresso dois vetores, o primeiro contento todos caracteres inseridos e o segundo contento somente
     os caracteres inseridos corretamente.
 */
-// Função responsável por imprimir o status atual do jogo
 void exibirStatusJogo(char *palavra, char *tentativasCorretas, char *tentativas, char tentativaAtual, int *limiteErros){
 
     printf("\n--------------- Jogo da Forca ---------------\n");
@@ -146,9 +165,9 @@ int main() {
 
     int limiteErros = 0; // Variável auxiliar para contagem de Erros
     int qtdeTentativas = 0; // Variável auxiliar responsável pela inserção dos caracteres.
-    int novoJogo, vitoria;
+    int novoJogo; // Variável utilizada para que o usuário inicie uma nova rodada ou termine o algoritmo
 
-
+    // Uso do GoTO para que reiniciar o jogo
     inicioJogo:
     // Função para inserir respetiva palavra no vetor destinado a esta palavra
     sprintf(palavra, "PreSTAdOR");
@@ -157,25 +176,31 @@ int main() {
 
     do {
         // Chamada da função para inserção correta dos caracteres no jogo.
-        obterCaracterValido(palavra, tentativasCorretas, tentativas, tentativaAtual, qtdeTentativas);
+        obterCaracterValido(palavra, tentativasCorretas, tentativas, &tentativaAtual, qtdeTentativas);
+
+        if(palavraDescoberta(palavra, tentativasCorretas)){
+            printf("\n--------------- Vitória ---------------\n");
+            printf("Palavra encontrada: %s", palavra);
+            printf("-----------------------------------------\n\n");
+            break;
+        }
 
         // Chamada da função para impressão do jogo em tempo real.
         exibirStatusJogo(palavra, tentativasCorretas, tentativas, tentativaAtual, &limiteErros);
 
 
-
         qtdeTentativas++; // Incremento de variável auxiliar responsável pela inserção do valores
-    } while (limiteErros < 3);
+    } while (limiteErros < 10);
 
-    //ler_int("Fim do Jogo! /nDigite 1 para reinicia ou 0 para terminar o programa.", novoJogo);
-    printf("Fim do Jogo! \nDigite 1 para reinicia ou 0 para terminar o programa.\n");
+    /*
+        Após o fim da rodada é solicitado que o usuário escolha iniciar a rodade novamente
+        ou acabar com o algoritmo através do uso do GoTo
+    */
+    printf("\n--------------- Fim do Jogo! ---------------\n");
+    printf("Digite 1 para iniciar nova jogada.\nDigite 0 para terminar o programa.\n");
     scanf("%d", &novoJogo);
-    printf("\nNova Rodada - Jogo da Forca!\n");
-
     if(novoJogo == 1)
         goto inicioJogo;
-    //else
-      //  exit;
 
     return 0;
 }
